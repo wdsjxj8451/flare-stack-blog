@@ -1,5 +1,5 @@
 import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
-import { ChevronDown, Home, Menu, Search, UserIcon, X } from "lucide-react";
+import { ChevronDown, Menu, Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import { IconButton } from "@/components/ui/icon-button";
@@ -11,6 +11,8 @@ import { LanguageSwitcher } from "./language-switcher";
 import { PublicNavLink } from "./public-nav-link";
 import { MobileMenu } from "./mobile-menu";
 import "./navbar.css";
+import { SiteAvatar } from "./site-avatar";
+import { SiteWordmark } from "./site-wordmark";
 
 interface NavbarProps {
   navOptions: Array<NavOption>;
@@ -125,8 +127,7 @@ export function Navbar({
     >
       <div id="fuwari-navbar" className="public-navbar fuwari-card-base">
         <Link to="/" className="public-brand" title={siteConfig.title}>
-          <Home size={28} strokeWidth={1.5} />
-          <span>{siteConfig.title}</span>
+          <SiteWordmark title={siteConfig.title} />
         </Link>
         <nav className="public-desktop-links">
           {navOptions.map((option) => (
@@ -160,10 +161,8 @@ export function Navbar({
             >
               {isLoading ? (
                 <Skeleton className="w-7 h-7 rounded-lg" />
-              ) : user?.image ? (
-                <img src={user.image} alt="" />
               ) : (
-                <UserIcon size={18} strokeWidth={1.5} />
+                <SiteAvatar src={user?.image} />
               )}
               <ChevronDown size={12} />
             </IconButton>

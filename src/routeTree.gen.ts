@@ -25,6 +25,7 @@ import { Route as PublicUserRouteRouteImport } from './routes/_public/_user/rout
 import { Route as PublicFriendLinksRouteImport } from './routes/_public/friend-links'
 import { Route as PublicPostsRouteImport } from './routes/_public/posts'
 import { Route as PublicSearchRouteImport } from './routes/_public/search'
+import { Route as PublicTagsRouteImport } from './routes/_public/tags'
 import { Route as PublicUnsubscribeRouteImport } from './routes/_public/unsubscribe'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminSplatRouteImport } from './routes/admin/$'
@@ -133,6 +134,11 @@ const PublicPostsRoute = PublicPostsRouteImport.update({
 const PublicSearchRoute = PublicSearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => PublicRouteRoute,
+} as any)
+const PublicTagsRoute = PublicTagsRouteImport.update({
+  id: '/tags',
+  path: '/tags',
   getParentRoute: () => PublicRouteRoute,
 } as any)
 const PublicUnsubscribeRoute = PublicUnsubscribeRouteImport.update({
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/friend-links': typeof PublicFriendLinksRoute
   '/posts': typeof PublicPostsRoute
   '/search': typeof PublicSearchRoute
+  '/tags': typeof PublicTagsRoute
   '/unsubscribe': typeof PublicUnsubscribeRoute
   '/admin/$': typeof AdminSplatRoute
   '/api/$': typeof ApiSplatRoute
@@ -361,6 +368,7 @@ export interface FileRoutesByTo {
   '/friend-links': typeof PublicFriendLinksRoute
   '/posts': typeof PublicPostsRoute
   '/search': typeof PublicSearchRoute
+  '/tags': typeof PublicTagsRoute
   '/unsubscribe': typeof PublicUnsubscribeRoute
   '/admin/$': typeof AdminSplatRoute
   '/api/$': typeof ApiSplatRoute
@@ -410,6 +418,7 @@ export interface FileRoutesById {
   '/_public/friend-links': typeof PublicFriendLinksRoute
   '/_public/posts': typeof PublicPostsRoute
   '/_public/search': typeof PublicSearchRoute
+  '/_public/tags': typeof PublicTagsRoute
   '/_public/unsubscribe': typeof PublicUnsubscribeRoute
   '/admin/$': typeof AdminSplatRoute
   '/api/$': typeof ApiSplatRoute
@@ -460,6 +469,7 @@ export interface FileRouteTypes {
     | '/friend-links'
     | '/posts'
     | '/search'
+    | '/tags'
     | '/unsubscribe'
     | '/admin/$'
     | '/api/$'
@@ -504,6 +514,7 @@ export interface FileRouteTypes {
     | '/friend-links'
     | '/posts'
     | '/search'
+    | '/tags'
     | '/unsubscribe'
     | '/admin/$'
     | '/api/$'
@@ -552,6 +563,7 @@ export interface FileRouteTypes {
     | '/_public/friend-links'
     | '/_public/posts'
     | '/_public/search'
+    | '/_public/tags'
     | '/_public/unsubscribe'
     | '/admin/$'
     | '/api/$'
@@ -713,6 +725,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof PublicSearchRouteImport
+      parentRoute: typeof PublicRouteRoute
+    }
+    '/_public/tags': {
+      id: '/_public/tags'
+      path: '/tags'
+      fullPath: '/tags'
+      preLoaderRoute: typeof PublicTagsRouteImport
       parentRoute: typeof PublicRouteRoute
     }
     '/_public/unsubscribe': {
@@ -983,6 +1002,7 @@ interface PublicRouteRouteChildren {
   PublicFriendLinksRoute: typeof PublicFriendLinksRoute
   PublicPostsRoute: typeof PublicPostsRoute
   PublicSearchRoute: typeof PublicSearchRoute
+  PublicTagsRoute: typeof PublicTagsRoute
   PublicUnsubscribeRoute: typeof PublicUnsubscribeRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicPostSlugRoute: typeof PublicPostSlugRoute
@@ -995,6 +1015,7 @@ const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicFriendLinksRoute: PublicFriendLinksRoute,
   PublicPostsRoute: PublicPostsRoute,
   PublicSearchRoute: PublicSearchRoute,
+  PublicTagsRoute: PublicTagsRoute,
   PublicUnsubscribeRoute: PublicUnsubscribeRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicPostSlugRoute: PublicPostSlugRoute,

@@ -4,22 +4,15 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import type { PublicLayoutProps } from "@/components/layout/layout-props";
-import {
-  getPublicImageSrc,
-  PUBLIC_IMAGE_WIDTH,
-} from "@/features/media/utils/media.utils";
 import { cn } from "@/lib/utils";
 import { BackToTop } from "./back-to-top";
+import { BackgroundImage, RandomBackgroundProvider } from "./random-background";
 import { FloatingActionsProvider } from "./floating-actions";
 import { Footer } from "./footer";
+import { GlassPointer } from "./glass-pointer";
 import { Navbar } from "./navbar";
 import { PageFade } from "./page-fade";
-import { Sidebar } from "./sidebar";
-
-const BANNER_HEIGHT_HOME = 65;
-const BANNER_HEIGHT_PAGE = 35;
-const MAIN_OVERLAP_REM = 3.5;
-const NAVBAR_HEIGHT_REM = 4.5;
+import "./public-theme.css";
 
 export function PublicLayout({
   children,
@@ -31,100 +24,58 @@ export function PublicLayout({
   const { siteConfig } = useRouteContext({ from: "__root__" });
   const location = useLocation();
   const isHomePage = location.pathname === "/";
-  const isAuthPage = useRouterState({
+  const isPostPage = useRouterState({
     select: (state) =>
-      state.matches.some((match) => match.routeId.includes("/_auth")),
+      state.matches.some((match) => match.routeId === "/_public/post/$slug"),
   });
-  const hasRouteError = useRouterState({
-    select: (state) =>
-      state.matches.some(
-        (match) => match.status === "error" || match.status === "notFound",
-      ),
-  });
-  const isFocusedPage =
-    hasRouteError ||
-    isAuthPage ||
-    location.pathname === "/submit-friend-link" ||
-    location.pathname === "/profile";
-  const bannerHeightVh = isHomePage ? BANNER_HEIGHT_HOME : BANNER_HEIGHT_PAGE;
-
   return (
     <FloatingActionsProvider>
-      <div className="relative min-h-screen bg-(--fuwari-page-bg) transition-colors">
-        {/* Top row: Navbar - sticky */}
-        <div className="sticky top-0 z-50 pointer-events-none">
-          <div className="pointer-events-auto max-w-(--fuwari-page-width) mx-auto px-0 md:px-4">
-            <Navbar
-              navOptions={navOptions}
-              logout={logout}
-              user={user}
-              isLoading={isSessionLoading}
-              bannerHeightVh={bannerHeightVh}
-            />
-          </div>
-        </div>
-
-        {/* Banner - full width background */}
+      <RandomBackgroundProvider source={siteConfig.theme.fuwari.homeBg}>
         <div
-          className="absolute left-0 right-0 top-0 z-10 overflow-hidden transition-[height] duration-700"
-          style={{ height: `${bannerHeightVh}vh` }}
+          className={cn(
+            "public-site relative min-h-screen",
+            isHomePage && "public-home-site",
+            isPostPage && "public-reading-site",
+          )}
         >
-          <img
-            src={getPublicImageSrc(
-              siteConfig.theme.fuwari.homeBg,
-              PUBLIC_IMAGE_WIDTH.banner,
-            )}
-            alt="banner"
-            fetchPriority={isHomePage ? "high" : "auto"}
-            className="fuwari-banner-image w-full h-full object-cover object-center"
-          />
-        </div>
-
-        {/* Main content - overlaps banner by MAIN_OVERLAP_REM */}
-        <div
-          className="relative z-30 transition-[margin-top] duration-700"
-          style={{
-            marginTop: `calc(${bannerHeightVh}vh - ${MAIN_OVERLAP_REM}rem - ${NAVBAR_HEIGHT_REM}rem)`,
-          }}
-        >
-          <div
-            className={cn(
-              "public-content-grid relative mx-auto px-0 md:px-4 pb-8 grid gap-4",
-              isFocusedPage
-                ? "grid-cols-1"
-                : "grid-cols-1 lg:grid-cols-[17.5rem_1fr]",
-            )}
-            style={{ maxWidth: "var(--fuwari-page-width)" }}
-          >
-            {isFocusedPage ? null : (
-              <Sidebar className="public-sidebar order-2 lg:order-1" />
-            )}
-
-            <main
-              className={cn(
-                "flex flex-col gap-4 min-w-0",
-                isFocusedPage ? "" : "order-1 lg:order-2",
-              )}
-            >
-              <PageFade includeSearch={location.pathname !== "/search"}>
-                {children}
-              </PageFade>
-            </main>
-
-            <div
-              className={cn(
-                "public-footer fuwari-onload-animation mt-auto",
-                isFocusedPage ? "" : "order-3 lg:col-start-2",
-              )}
-              style={{ animationDelay: "250ms" }}
-            >
-              <Footer navOptions={navOptions} />
+          <GlassPointer />
+          <div className="public-ambient" aria-hidden="true">
+            <div className="public-ambient-photo">
+              <BackgroundImage priority={isHomePage} />
             </div>
-
-            <BackToTop />
+            <div className="public-acrylic" />
+          </div>
+          <div className="sticky top-0 z-50 pointer-events-none">
+            <div className="pointer-events-auto w-full">
+              <Navbar
+                navOptions={navOptions}
+                logout={logout}
+                user={user}
+                isLoading={isSessionLoading}
+                bannerHeightVh={isHomePage ? 44 : 16}
+              />
+            </div>
+          </div>
+          <div className="public-main-shell relative z-30">
+            <div
+              className="public-content-grid relative mx-auto px-5 pb-8 sm:px-8"
+              style={{ maxWidth: isPostPage ? "84rem" : "72rem" }}
+            >
+              <main className="min-w-0">
+                <PageFade includeSearch={location.pathname !== "/search"}>
+                  {children}
+                </PageFade>
+              </main>
+              <div className="public-footer">
+                <Footer navOptions={navOptions} />
+              </div>
+              <BackToTop
+                readingKey={isPostPage ? location.pathname : undefined}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </RandomBackgroundProvider>
     </FloatingActionsProvider>
   );
 }

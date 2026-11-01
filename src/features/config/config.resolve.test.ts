@@ -84,6 +84,33 @@ describe("resolveSystemConfig webhook", () => {
 });
 
 describe("resolveSiteConfig navLinks", () => {
+  it("adopts jin's identity and random background for the old demo defaults", () => {
+    const config = resolveSiteConfig({
+      site: {
+        title: "站点名称",
+        author: "作者",
+        theme: { fuwari: { homeBg: "/images/home-bg.webp" } },
+      },
+    });
+    expect(config.title).toBe("Jin's Blog");
+    expect(config.author).toBe("jin");
+    expect(config.theme.fuwari.homeBg).toBe("https://www.loliapi.com/acg/pc/");
+  });
+
+  it("keeps explicit personal settings editable", () => {
+    const config = resolveSiteConfig({
+      site: {
+        title: "My journal",
+        author: "Jin",
+        theme: { fuwari: { homeBg: "https://example.com/background.webp" } },
+      },
+    });
+    expect(config.title).toBe("My journal");
+    expect(config.theme.fuwari.homeBg).toBe(
+      "https://example.com/background.webp",
+    );
+  });
+
   it("defaults to an empty list", () => {
     expect(resolveSiteConfig({}).navLinks).toEqual([]);
   });

@@ -46,9 +46,18 @@ function migrateSocial(social: unknown): SocialLink[] {
 export function resolveSiteConfig(
   config: SystemConfig | null | undefined,
 ): SiteConfig {
+  // Adopt the new defaults for installations still using the original demo.
+  // Explicit personal settings remain editable in the Admin.
+  const title = config?.site?.title;
+  const author = config?.site?.author;
+  const homeBg = config?.site?.theme?.fuwari?.homeBg;
   return FullSiteConfigSchema.parse({
-    title: config?.site?.title ?? blogConfig.title,
-    author: config?.site?.author ?? blogConfig.author,
+    title:
+      title === "站点名称" || title === "jin的博客"
+        ? blogConfig.title
+        : (title ?? blogConfig.title),
+    author:
+      author === "作者" ? blogConfig.author : (author ?? blogConfig.author),
     description: config?.site?.description ?? blogConfig.description,
     social: migrateSocial(config?.site?.social),
     navLinks: normalizeNavLinks(config?.site?.navLinks),
@@ -66,7 +75,9 @@ export function resolveSiteConfig(
     theme: {
       fuwari: {
         homeBg:
-          config?.site?.theme?.fuwari?.homeBg ?? blogConfig.theme.fuwari.homeBg,
+          homeBg === "/images/home-bg.webp"
+            ? blogConfig.theme.fuwari.homeBg
+            : (homeBg ?? blogConfig.theme.fuwari.homeBg),
         avatar:
           config?.site?.theme?.fuwari?.avatar ?? blogConfig.theme.fuwari.avatar,
         primaryHue:

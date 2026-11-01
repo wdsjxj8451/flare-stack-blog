@@ -199,6 +199,8 @@ const fuwariThemeSiteConfigInputSchema =
   createFuwariThemeSiteConfigInputSchema();
 
 export const FullSiteConfigSchema = z.object({
+  // Derived public data, deliberately absent from the editable input schema.
+  ownerAvatar: z.string().url().nullable().optional(),
   title: createSiteTextSchema(120),
   author: createSiteTextSchema(80),
   description: createSiteTextSchema(300),

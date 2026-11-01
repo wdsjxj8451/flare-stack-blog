@@ -1,4 +1,5 @@
 import { ORPCError } from "@orpc/server";
+import { findOwnerGithubAvatar } from "@/features/auth/data/auth.data";
 import {
   UpdateConfigSectionSchema,
   type UpdateConfigSection,
@@ -39,8 +40,11 @@ export async function getSystemConfig(
 export async function getSiteConfig(
   context: DbContext & { executionCtx: ExecutionContext },
 ): Promise<SiteConfig> {
-  const config = await getSystemConfig(context);
-  return resolveSiteConfig(config);
+  const [config, ownerAvatar] = await Promise.all([
+    getSystemConfig(context),
+    findOwnerGithubAvatar(context.db),
+  ]);
+  return { ...resolveSiteConfig(config), ownerAvatar };
 }
 
 export async function getAdminConfig(

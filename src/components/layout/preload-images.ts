@@ -1,18 +1,10 @@
 import type { SiteConfig } from "@/features/config/site-config.schema";
-import {
-  getPublicImageSrc,
-  PUBLIC_IMAGE_WIDTH,
-} from "@/features/media/utils/media.utils";
+import { getHomeBackgroundImage } from "./background";
 
 export function getHomeBackgroundPreloadImages(
   siteConfig: SiteConfig,
 ): Array<string> {
   return siteConfig.theme.fuwari.homeBg
-    ? [
-        getPublicImageSrc(
-          siteConfig.theme.fuwari.homeBg,
-          PUBLIC_IMAGE_WIDTH.banner,
-        ),
-      ]
+    ? [getHomeBackgroundImage(siteConfig.theme.fuwari.homeBg)]
     : [];
 }

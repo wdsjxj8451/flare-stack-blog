@@ -1,6 +1,5 @@
-import { formatPublicPostDate } from "@/features/posts/utils/format-public-post-date";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Calendar, Edit, Tag } from "lucide-react";
+import { formatPublicPostDate } from "@/features/posts/utils/format-public-post-date";
 import {
   withCategoryFilter,
   withTagFilter,
@@ -10,105 +9,58 @@ import type { PostItem } from "@/features/posts/schema/posts.schema";
 import { cn } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 
-interface PostMetaProps {
+export function PostMeta({
+  post,
+  className,
+}: {
   post: PostItem;
   className?: string;
-}
-
-export function PostMeta({ post, className }: PostMetaProps) {
+}) {
   const published = post.publishedAt;
   const updated = post.updatedAt;
   const isUpdated = Boolean(
     published && updated && published.getTime() !== updated.getTime(),
   );
-
   return (
     <div
       className={cn(
-        "flex flex-wrap text-black/50 dark:text-white/40 items-center gap-4 gap-x-4 gap-y-2",
+        "post-meta-text flex flex-wrap items-center gap-x-4 gap-y-2 text-sm fuwari-text-50",
         className,
       )}
     >
-      {/* Publish date */}
-      <div className="flex items-center">
-        <div className="fuwari-meta-icon">
-          <Calendar strokeWidth={1.5} size={20} />
-        </div>
-        <time
-          dateTime={published?.toISOString()}
-          className="text-sm font-medium fuwari-text-50"
-        >
+      <span>
+        {m.post_published_label()}{" "}
+        <time dateTime={published?.toISOString()}>
           {formatPublicPostDate(published)}
         </time>
-      </div>
-
-      {/* Update date */}
+      </span>
       {isUpdated && (
-        <div className="flex items-center">
-          <div className="fuwari-meta-icon">
-            <Edit strokeWidth={1.5} size={20} />
-          </div>
-          <time
-            dateTime={updated?.toISOString()}
-            className="text-sm font-medium fuwari-text-50"
-          >
+        <span>
+          {m.post_updated_label()}{" "}
+          <time dateTime={updated?.toISOString()}>
             {formatPublicPostDate(updated)}
           </time>
-        </div>
+        </span>
       )}
-
-      <div className="flex items-center">
-        <div className="fuwari-meta-icon">
-          <BookOpen strokeWidth={1.5} size={20} />
-        </div>
-        {post.category ? (
-          <Link
-            to="/posts"
-            search={withCategoryFilter(post.category?.name)}
-            className="fuwari-expand-animation rounded-md px-1.5 py-1 -m-1.5 transition fuwari-text-50 text-sm font-medium hover:text-(--fuwari-primary) whitespace-nowrap"
-          >
-            {post.category.name}
+      <Link
+        to="/posts"
+        search={
+          post.category
+            ? withCategoryFilter(post.category.name)
+            : withUncategorizedFilter()
+        }
+      >
+        {post.category?.name ?? m.post_uncategorized()}
+      </Link>
+      {post.tags?.length ? (
+        post.tags.map((tag) => (
+          <Link key={tag.name} to="/posts" search={withTagFilter(tag.name)}>
+            #{tag.name}
           </Link>
-        ) : (
-          <Link
-            to="/posts"
-            search={withUncategorizedFilter()}
-            className="fuwari-expand-animation rounded-md px-1.5 py-1 -m-1.5 transition fuwari-text-50 text-sm font-medium hover:text-(--fuwari-primary) whitespace-nowrap"
-          >
-            {m.post_uncategorized()}
-          </Link>
-        )}
-      </div>
-
-      <div className="flex items-center">
-        <div className="fuwari-meta-icon">
-          <Tag strokeWidth={1.5} size={20} />
-        </div>
-        <div className="flex flex-row flex-nowrap items-center gap-x-1.5">
-          {post.tags && post.tags.length > 0 ? (
-            post.tags.map((tag, i) => (
-              <span key={tag.name} className="flex items-center">
-                {i > 0 && (
-                  <span className="mx-1.5 text-(--fuwari-meta-divider) text-sm">
-                    /
-                  </span>
-                )}
-                <Link
-                  to="/posts"
-                  search={withTagFilter(tag.name)}
-                  className="fuwari-expand-animation rounded-md px-1.5 py-1 -m-1.5 transition fuwari-text-50 text-sm font-medium hover:text-(--fuwari-primary) whitespace-nowrap"
-                >
-                  {tag.name}
-                </Link>
-              </span>
-            ))
-          ) : (
-            <span className="transition fuwari-text-50 text-sm font-medium">
-              {m.post_no_tags()}
-            </span>
-          )}
-        </div>
-      </div>
+        ))
+      ) : (
+        <span>{m.post_no_tags()}</span>
+      )}
     </div>
   );
 }

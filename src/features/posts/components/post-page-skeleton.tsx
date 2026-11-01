@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { Clock, FileText } from "lucide-react";
 import {
   getPublicImageSrc,
   PUBLIC_IMAGE_WIDTH,
@@ -8,48 +7,7 @@ import {
 import { findCachedPublicPost } from "@/features/posts/utils/cached-public-post";
 import { Skeleton } from "@/components/ui/skeleton";
 import { m } from "@/paraglide/messages";
-import { cn } from "@/lib/utils";
 import { PostMeta } from "./post-meta";
-import { PostSummary } from "./post-summary";
-
-function MetaChip() {
-  return (
-    <div className="flex items-center">
-      <Skeleton className="mr-2 h-6 w-6 rounded-md" />
-      <Skeleton className="h-3.5 w-16" />
-    </div>
-  );
-}
-
-function Paragraph({ widths }: { widths: Array<string> }) {
-  return (
-    <div className="space-y-3">
-      {widths.map((width, index) => (
-        <Skeleton key={`${width}-${index}`} className={cn("h-3.5", width)} />
-      ))}
-    </div>
-  );
-}
-
-function ArticleBodySkeleton() {
-  return (
-    <div>
-      <Paragraph
-        widths={["w-full", "w-full", "w-full", "w-[96%]", "w-[88%]"]}
-      />
-      <Skeleton className="mt-8 mb-4 h-6 w-2/5" />
-      <Paragraph widths={["w-full", "w-full", "w-full", "w-full", "w-[72%]"]} />
-      <Skeleton className="my-8 h-36 w-full rounded-xl" />
-      <Skeleton className="mt-8 mb-4 h-6 w-1/3" />
-      <Paragraph
-        widths={["w-full", "w-full", "w-full", "w-[94%]", "w-[81%]"]}
-      />
-      <div className="mt-6">
-        <Paragraph widths={["w-full", "w-full", "w-[90%]", "w-[64%]"]} />
-      </div>
-    </div>
-  );
-}
 
 export function PostPageSkeleton() {
   const { slug } = useParams({ strict: false });
@@ -58,105 +16,64 @@ export function PostPageSkeleton() {
     typeof slug === "string"
       ? findCachedPublicPost(queryClient, slug)
       : undefined;
-  const wordCount = cached ? cached.readTimeInMinutes * 300 : 0;
-
   return (
-    <div className="relative mb-4 flex w-full flex-col gap-4 rounded-(--fuwari-radius-large) py-1 md:bg-transparent md:py-0">
-      <div className="fuwari-card-base relative z-10 w-full px-6 pb-4 pt-6 md:px-9">
-        <div className="mb-3 flex flex-row flex-wrap gap-5 fuwari-text-30">
+    <div className="post-reading-layout" aria-busy="true">
+      <div className="post-reading-flow">
+        <div className="post-reading-article">
+          <div className="mb-3 flex flex-wrap gap-5 text-sm fuwari-text-50">
+            {cached ? (
+              <>
+                <span>
+                  {m.post_word_count({ count: cached.readTimeInMinutes * 300 })}
+                </span>
+                <span>{m.read_time({ count: cached.readTimeInMinutes })}</span>
+              </>
+            ) : (
+              <Skeleton className="h-4 w-40" />
+            )}
+          </div>
           {cached ? (
-            <>
-              <div className="flex flex-row items-center">
-                <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-md bg-black/5 fuwari-text-50 dark:bg-white/10">
-                  <FileText strokeWidth={1.5} size={16} />
-                </div>
-                <div className="text-sm">
-                  {m.post_word_count({ count: wordCount })}
-                </div>
-              </div>
-              <div className="flex flex-row items-center">
-                <div className="mr-2 flex h-6 w-6 items-center justify-center rounded-md bg-black/5 fuwari-text-50 dark:bg-white/10">
-                  <Clock strokeWidth={1.5} size={16} />
-                </div>
-                <div className="text-sm">
-                  {m.read_time({ count: cached.readTimeInMinutes })}
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="flex gap-5">
-              <MetaChip />
-              <MetaChip />
-            </div>
-          )}
-        </div>
-
-        <div className="relative">
-          {cached ? (
-            <h1
-              className="relative mb-3 block w-full text-3xl font-bold fuwari-text-90 md:text-[2.25rem]/[2.75rem] md:before:absolute md:before:top-3 md:before:-left-4.5 md:before:h-5 md:before:w-1 md:before:rounded-md md:before:bg-(--fuwari-primary)"
-              style={
-                typeof slug === "string"
-                  ? { viewTransitionName: `post-title-${slug}` }
-                  : undefined
-              }
-            >
+            <h1 className="mb-5 text-3xl font-bold fuwari-text-90 md:text-4xl">
               {cached.title}
             </h1>
           ) : (
-            <Skeleton className="mb-3 h-9 w-4/5 md:h-10" />
+            <Skeleton className="mb-5 h-10 w-4/5" />
           )}
-        </div>
-
-        {cached ? (
-          <>
-            <PostMeta post={cached} className="mb-5" />
-            {!cached.cover && (
-              <div className="mb-5 border-b border-dashed border-(--fuwari-meta-divider)" />
-            )}
-          </>
-        ) : (
-          <div className="mb-5 flex flex-wrap gap-4">
-            <MetaChip />
-            <MetaChip />
-            <MetaChip />
+          {cached ? (
+            <PostMeta post={cached} className="mb-8" />
+          ) : (
+            <Skeleton className="mb-8 h-4 w-3/5" />
+          )}
+          {cached?.cover && (
+            <div className="mb-8 overflow-hidden rounded-xl">
+              <img
+                src={getPublicImageSrc(
+                  cached.cover.url,
+                  PUBLIC_IMAGE_WIDTH.cover,
+                )}
+                alt={cached.title}
+                width={cached.cover.width ?? undefined}
+                height={cached.cover.height ?? undefined}
+                className="h-auto w-full"
+              />
+            </div>
+          )}
+          {cached?.summary && (
+            <p className="post-reading-summary">{cached.summary}</p>
+          )}
+          <div className="space-y-8">
+            {[0, 1, 2].map((section) => (
+              <div key={section} className="space-y-4">
+                <Skeleton className="mb-6 h-6 w-2/5" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-4/5" />
+              </div>
+            ))}
           </div>
-        )}
-
-        {cached?.cover ? (
-          <div className="mb-8 overflow-hidden rounded-xl">
-            <img
-              src={getPublicImageSrc(
-                cached.cover.url,
-                PUBLIC_IMAGE_WIDTH.cover,
-              )}
-              alt={cached.title}
-              width={cached.cover.width ?? undefined}
-              height={cached.cover.height ?? undefined}
-              className="h-auto w-full object-cover"
-            />
-          </div>
-        ) : null}
-
-        {cached?.summary ? <PostSummary summary={cached.summary} /> : null}
-
-        <div className="mb-6">
-          <ArticleBodySkeleton />
         </div>
-
-        <div className="my-8 flex w-full items-center justify-center">
-          <div className="h-px w-full bg-linear-to-r from-transparent via-(--fuwari-meta-divider) to-transparent opacity-20" />
-          <span className="mx-4 whitespace-nowrap font-mono text-sm tracking-widest text-(--fuwari-meta-divider) opacity-50">
-            END
-          </span>
-          <div className="h-px w-full bg-linear-to-r from-(--fuwari-meta-divider) via-transparent to-transparent opacity-20" />
-        </div>
-      </div>
-
-      <div className="fuwari-card-base p-6">
-        <Skeleton className="mb-5 h-5 w-24" />
-        <div className="space-y-4">
-          <Skeleton className="h-16 w-full rounded-xl" />
+        <div className="post-reading-comments">
+          <Skeleton className="mb-5 h-5 w-24" />
           <Skeleton className="h-16 w-full rounded-xl" />
         </div>
       </div>

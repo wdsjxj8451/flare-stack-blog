@@ -60,6 +60,7 @@ export const Route = createFileRoute("/_public/")({
 });
 
 function HomeRoute() {
+  const { siteConfig } = Route.useRouteContext();
   const { page = 1 } = Route.useSearch();
   const { data } = useSuspenseQuery(homePostsQuery(page));
   const { data: popularPosts } = useSuspenseQuery(
@@ -67,6 +68,8 @@ function HomeRoute() {
   );
   return (
     <HomePage
+      title={siteConfig.title}
+      description={siteConfig.description}
       posts={data.items}
       popularPosts={popularPosts}
       page={data.page}

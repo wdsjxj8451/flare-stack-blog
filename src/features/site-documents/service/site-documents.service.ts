@@ -121,6 +121,11 @@ export async function buildSitemapXml(env: Env) {
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://${DOMAIN}/tags</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://${DOMAIN}/friend-links</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

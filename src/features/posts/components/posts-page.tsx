@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { ListingHeading } from "@/components/layout/listing-heading";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PostItem } from "@/features/posts/schema/posts.schema";
@@ -20,6 +21,9 @@ interface PostsPageProps {
 
 export function PostsPage({
   posts,
+  tags,
+  selectedTag,
+  onTagClick,
   hasNextPage,
   isFetchingNextPage,
   fetchNextPage,
@@ -45,9 +49,33 @@ export function PostsPage({
 
   return (
     <div
-      className="fuwari-onload-animation flex flex-col gap-4"
+      className="fuwari-onload-animation flex flex-col gap-5 sm:gap-6"
       style={{ animationDelay: "var(--fuwari-content-delay)" }}
     >
+      <ListingHeading
+        title={m.posts_title()}
+        description={m.posts_description()}
+      >
+        {tags.length > 0 && (
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label={m.tags_title()}
+          >
+            {[undefined, ...tags.map((tag) => tag.name)].map((name) => (
+              <button
+                key={name === undefined ? "all" : `tag-${name}`}
+                type="button"
+                aria-pressed={selectedTag === name}
+                onClick={() => onTagClick(name)}
+                className={`min-h-10 max-w-full rounded-lg border px-3 py-2 text-sm wrap-anywhere transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${selectedTag === name ? "border-(--fuwari-primary) bg-(--fuwari-btn-regular-bg) text-(--fuwari-btn-content)" : "border-(--fuwari-meta-divider) fuwari-text-75 hover:bg-(--fuwari-btn-regular-bg)"}`}
+              >
+                {name ? `#${name}` : m.posts_title()}
+              </button>
+            ))}
+          </div>
+        )}
+      </ListingHeading>
       {posts.length > 0 && <ArchivePanel posts={posts} />}
 
       {/* Infinite Scroll trigger and loading indicator */}
@@ -78,9 +106,9 @@ export function PostsPage({
         ) : hasNextPage ? (
           <div className="h-px w-24 bg-black/10 dark:bg-white/10"></div>
         ) : posts.length > 0 ? (
-          <div className="flex items-center gap-4 text-black/20 dark:text-white/20 mt-4">
+          <div className="flex items-center gap-4 fuwari-text-50 mt-4">
             <span className="h-px w-12 bg-current" />
-            <span className="text-sm font-bold italic">{m.posts_end()}</span>
+            <span className="text-sm">{m.posts_end()}</span>
             <span className="h-px w-12 bg-current" />
           </div>
         ) : (
