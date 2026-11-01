@@ -2,6 +2,8 @@
 
 发布授权：用户已于 2026-11-01 审核通过，授权提交并推送 GitHub，由已连接的 Cloudflare Workers Builds 自动部署。下方“等待审核／未推送”是各轮验证时的历史状态；最终发布结果以本次提交及部署记录为准。
 
+发布检查补充：Windows 的 Bun 无法直接执行 `./node_modules/typescript/bin/tsc` 这个无扩展名启动文件，推送钩子因此中断；`typecheck` 和 `check` 已改为通过 `node` 显式运行同一启动文件，没有替换编译器或跳过检查。真实 TypeScript 7 检查已通过。
+
 本次沿用现有 React + TanStack Start + Tailwind CSS 4 + Cloudflare Workers。项目并非 Astro，因此不新增 `astro.config.mjs`，也不把已有内容迁移到文件式博客。这样可以保留后台、数据、文章地址和现有部署流程。
 
 ## 当前审核版本：随机二次元背景与个人手记首页
@@ -214,8 +216,8 @@ git -c safe.directory=D:/work/flare-stack-blog push origin main
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
     "orpc:contract": "bun run i18n:compile && bun scripts/generate-orpc-contract.ts && oxfmt src/lib/orpc/contract.generated.json",
-    "typecheck": "bun run orpc:contract && cf workers types && ./node_modules/typescript/bin/tsc --noEmit",
-    "check": "bun run orpc:contract && cf workers types && oxlint && oxfmt --check && ./node_modules/typescript/bin/tsc --noEmit",
+    "typecheck": "bun run orpc:contract && cf workers types && node ./node_modules/typescript/bin/tsc --noEmit",
+    "check": "bun run orpc:contract && cf workers types && oxlint && oxfmt --check && node ./node_modules/typescript/bin/tsc --noEmit",
     "i18n:compile": "bun paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
     "i18n:verify": "bun scripts/verify-translations.ts",
     "i18n:prune-unused": "bun scripts/prune-unused-translations.ts",
